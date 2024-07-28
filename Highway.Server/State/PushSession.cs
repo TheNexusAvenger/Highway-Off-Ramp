@@ -65,21 +65,12 @@ public class PushSession
     /// <param name="path">Path of the script.</param>
     /// <param name="source">Source of the script.</param>
     /// <exception cref="KeyNotFoundException">The path was not stored in the hash collection.</exception>
-    /// <exception cref="SecurityException">The hash of the script source does not match what was sent in the hash collection.</exception>
     public void Add(string path, string source)
     {
         // Throw an exception if the script does not have a hash.
         if (!this.ScriptHashCollection.Hashes!.ContainsKey(path))
         {
             throw new KeyNotFoundException($"Script path has no stored hash: {path}");
-        }
-        
-        // Throw an exception if the hash does not match.
-        var hash = HashUtil.GetHash(source);
-        var existingHash = this.ScriptHashCollection.Hashes[path];
-        if (hash != existingHash)
-        {
-            throw new SecurityException($"Script hashes do not match ({existingHash} != {hash}).");
         }
         
         // Store the script.

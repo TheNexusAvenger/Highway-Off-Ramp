@@ -106,14 +106,6 @@ public class PushController : ControllerBase
                 Message = $"The script was not sent in the hash collection when creating the session.",
             }.ToObjectResult(404);
         }
-        catch (SecurityException)
-        {
-            return new BaseResponse()
-            {
-                Status = "ScriptHashError",
-                Message = $"The script source does not match the hash sent in the hash collection.",
-            }.ToObjectResult(409);
-        }
         
         // Return success.
         return new BaseResponse()
