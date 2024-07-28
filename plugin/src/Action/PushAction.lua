@@ -5,6 +5,7 @@ Action for pushing files out of Roblox Studio.
 --]]
 --!strict
 
+local HttpService = game:GetService("HttpService")
 local ScriptEditorService = game:GetService("ScriptEditorService")
 
 local CommonAction = require(script.Parent:WaitForChild("CommonAction"))
@@ -52,12 +53,23 @@ function PushAction:PushScripts(ProgressCallback: (string) -> ()): ()
     
     --Push the scripts.
     for i, Script in ScriptsToPush do
-        ProgressCallback("Preparing scripts... ("..tostring(i).."/"..tostring(#ScriptsToPush)..")")
-        self:PerformAndParseRequest("POST", "/push/session/add", {
+        --Ignore the script if it can't be JSON encoded.
+        local AddBody = {
             session = PushSessionId,
             scriptPath = PathUtil.GetScriptPath(Script),
             contents = ScriptEditorService:GetEditorSource(Script),
-        } :: any)
+        }
+        local Worked, _ = pcall(function()
+            HttpService:JSONEncode(AddBody)
+        end)
+        if not Worked then
+            warn(`Script {AddBody.scriptPath} could not be JSON encoded, so it can't be sent. The contents will not appear in the file system.`)
+            AddBody.contents = "--FATAL: Contents could not be JSON encoded."
+        end
+
+        --Push the script.
+        ProgressCallback("Preparing scripts... ("..tostring(i).."/"..tostring(#ScriptsToPush)..")")
+        self:PerformAndParseRequest("POST", "/push/session/add", AddBody :: any)
     end
 
     --Complete the session.
