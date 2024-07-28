@@ -23,10 +23,7 @@ export type RobloxHttpResponse<T> = {
 export type CommonAction = {
     new: () -> (CommonAction),
     PerformRequest: (self: CommonAction, Method: string, Url: string, Body: any?) -> (RobloxHttpResponse<string>),
-    PerformRequestOrError: (self: CommonAction, Method: string, Url: string, Body: any?) -> (RobloxHttpResponse<string>),
     GetProjectManifest: (self: CommonAction) -> (Types.ProjectManifest),
-    GetFileHashes: (self: CommonAction, Endpoint: string?) -> (Types.FileHashes),
-    GetSource: (self: CommonAction, Path: string) -> (string),
 }
 
 
@@ -85,24 +82,6 @@ function CommonAction:GetProjectManifest(): Types.ProjectManifest
         },
         Paths = Paths,
     }
-end
-
---[[
-Fetches the current hashes of the file system.
---]]
-function CommonAction:GetFileHashes(Endpoint: string?): Types.FileHashes
-    local Response = self:PerformAndParseRequest("GET", Endpoint or "/file/list/hashes").Body["hashes"]
-    return {
-        HashMethod = Response.hashMethod,
-        Hashes = Response.hashes,
-    }
-end
-
---[[
-Fetches the source of a script.
---]]
-function CommonAction:GetSource(Path: string): string
-    return self:PerformAndParseRequest("GET", "/file/read?path="..Path).Body.contents
 end
 
 
