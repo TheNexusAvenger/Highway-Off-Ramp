@@ -74,12 +74,6 @@ function CommonAction:GetProjectManifest(): Types.ProjectManifest
     return {
         Name = Response.name,
         PushPlaceId = Response.pushPlaceId,
-        SyncPlaceId = Response.syncPlaceId,
-        Git = {
-            CheckoutBranch = Response.git.checkoutBranch,
-            PushBranch = Response.git.pushBranch,
-            CommitMessage = Response.git.commitMessage,
-        },
         Paths = Paths,
     }
 end

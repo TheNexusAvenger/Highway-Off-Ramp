@@ -5,11 +5,6 @@ namespace Highway.Server.Util;
 public static class FileUtil
 {
     /// <summary>
-    /// Name of the directory used by git projects.
-    /// </summary>
-    public const string GitDirectoryName = ".git";
-
-    /// <summary>
     /// Name of the file for storing the project information.
     /// </summary>
     public const string ProjectFileName = "highway.json";

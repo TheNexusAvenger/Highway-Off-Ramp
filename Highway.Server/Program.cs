@@ -47,13 +47,6 @@ public class Program
     /// <returns>Whether the app can start.</returns>
     private static bool Verify()
     {
-        // Return if there is no git directory.
-        if (FileUtil.GetParentDirectoryOf(FileUtil.GitDirectoryName) == null)
-        {
-            Logger.Warn("No git project found in the current directory or parent directory.");
-            return false;
-        }
-        
         // Return if there is no project file or it is invalid.
         var projectFilePath = FileUtil.FindFileInParent(FileUtil.ProjectFileName);
         if (projectFilePath == null)
@@ -68,24 +61,6 @@ public class Program
             if (projectContents == null)
             {
                 Logger.Warn($"Project file {FileUtil.ProjectFileName} could not be parsed.");
-                return false;
-            }
-            
-            // Verify the git configuration.
-            var gitConfiguration = projectContents.Git;
-            if (gitConfiguration == null)
-            {
-                Logger.Warn($"Project file {FileUtil.ProjectFileName} does not contain a \"git\" section.");
-                return false;
-            }
-            if (gitConfiguration.CheckoutBranch == null)
-            {
-                Logger.Warn($"Project file {FileUtil.ProjectFileName}'s \"git\" section does not contain \"checkoutBranch\" (defines which branch is pulled from before pushing from Roblox Studio).");
-                return false;
-            }
-            if (gitConfiguration.PushBranch == null)
-            {
-                Logger.Warn($"Project file {FileUtil.ProjectFileName}'s \"git\" section does not contain \"pushBranch\" (defines the branch to push to the git remote after being pushed from Roblox Studio).");
                 return false;
             }
             

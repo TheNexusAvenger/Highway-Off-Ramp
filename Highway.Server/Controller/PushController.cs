@@ -162,55 +162,12 @@ public class PushController : ControllerBase
             session.Complete();
             
             // Prepare the git branch.
-            var gitProcess = await GitProcess.GetCurrentProcess().ForkAsync();
             var configuration = FileUtil.Get<Manifest>(FileUtil.FindFileInParent(FileUtil.ProjectFileName))!;
-            var gitConfiguration = configuration.Git;
-            var fetchReturnCode = await gitProcess.RunCommandAsync("fetch");
-            if (fetchReturnCode != 0)
-            {
-                return new BaseResponse()
-                {
-                    Status = "PushFetchError",
-                    Message = $"Performing \"git fetch\" on the forked git process failed with non-zero return code {fetchReturnCode}",
-                }.ToObjectResult(500);
-            }
-            var checkoutBranch = completeRequest.CheckoutBranch ?? gitConfiguration.CheckoutBranch;
-            var checkoutReturnCode = await gitProcess.RunCommandAsync($"checkout \"{checkoutBranch}\"");
-            if (checkoutReturnCode != 0)
-            {
-                return new BaseResponse()
-                {
-                    Status = "PushCheckoutError",
-                    Message = $"Performing \"git checkout \"{checkoutBranch}\" on the forked git process failed with non-zero return code {checkoutReturnCode}",
-                }.ToObjectResult(500);
-            }
             
-            // Update the files.
-            await session.WriteFilesAsync(gitProcess.GitPath, configuration);
-            
-            // Commit and push the changes.
-            await gitProcess.RunCommandAsync("add .");
-            var commitMessage = completeRequest.CommitMessage ?? gitConfiguration.CommitMessage ?? "Update from Roblox Studio.";
-            var commitReturnCode = await gitProcess.RunCommandAsync($"commit -m \"{commitMessage}\"");
-            if (commitReturnCode != 0)
-            {
-                return new BaseResponse()
-                {
-                    Status = "PushCommitError",
-                    Message = $"Performing \"git commit\" on the forked git process failed with non-zero return code {commitReturnCode}",
-                }.ToObjectResult(500);
-            }
-            // TODO: Remove hard-coded "origin" remote.
-            var pushBranch = completeRequest.PushBranch ?? gitConfiguration.PushBranch;
-            var pushReturnCode = await gitProcess.RunCommandAsync($"push origin HEAD:\"{pushBranch}\"");
-            if (pushReturnCode != 0)
-            {
-                return new BaseResponse()
-                {
-                    Status = "PushError",
-                    Message = $"Performing \"git push origin HEAD:{pushBranch}\" on the forked git process failed with non-zero return code {pushReturnCode}",
-                }.ToObjectResult(500);
-            }
+            // Write the files.
+            var currentTime = DateTime.Now;
+            var pushPath = Path.Combine(Environment.CurrentDirectory, $"output-{configuration.Name ?? "unnamed"}-{currentTime.Year}-{currentTime.Month}-{currentTime.Day}-{currentTime.Hour}-{currentTime.Minute}-{currentTime.Second}");
+            await session.WriteFilesAsync(pushPath, configuration);
         }
         catch (KeyNotFoundException)
         {

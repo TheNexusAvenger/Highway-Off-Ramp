@@ -7,6 +7,7 @@
 sourcemap.json
 highway.json
 highway-hashes.json
+output-*/
 
 # User-specific files
 *.suo

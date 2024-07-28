@@ -5,22 +5,6 @@ Frame for confirming and running push actions.
 --]]
 --!strict
 
-local HEIGHT_PER_INPUT_LABEL = 28
-local INPUT_LABELS = {
-    {
-        Name = "CheckoutBranch",
-        DisplayName = "Checkout Branch",
-    },
-    {
-        Name = "PushBranch",
-        DisplayName = "Push Branch",
-    },
-    {
-        Name = "CommitMessage",
-        DisplayName = "Commit Message",
-    },
-}
-
 local NexusPluginComponents = require(script.Parent.Parent.Parent:WaitForChild("NexusPluginComponents"))
 local PluginColor = require(script.Parent.Parent.Parent:WaitForChild("NexusPluginComponents"):WaitForChild("Base"):WaitForChild("PluginColor"))
 local PushAction = require(script.Parent.Parent.Parent:WaitForChild("Action"):WaitForChild("PushAction"))
@@ -58,38 +42,12 @@ function PushPromptFrame:Load(): ()
         --Create the user interface.
         local ScrollListContainer = NexusPluginComponents.new("Frame")
         ScrollListContainer.BorderSizePixel = 1
-        ScrollListContainer.Size = UDim2.new(1, 0, 1, -((HEIGHT_PER_INPUT_LABEL * #INPUT_LABELS) + 1))
+        ScrollListContainer.Size = UDim2.new(1, 0, 1, -1)
         ScrollListContainer.Parent = self.ContentsFrame
 
         local ElementList = TextListEntry.CreateTextList(Lines)
         ElementList.Size = UDim2.new(1, 0, 1, 0)
         ElementList.Parent = ScrollListContainer
-
-        local Labels = {}
-        for i, InputLabelData in INPUT_LABELS do
-            local BasePositionY = HEIGHT_PER_INPUT_LABEL * (#INPUT_LABELS - i)
-
-            local LabelDisplayText = NexusPluginComponents.new("TextLabel")
-            LabelDisplayText.Size = UDim2.new(0, 120, 0, 22)
-            LabelDisplayText.AnchorPoint = Vector2.new(0, 0.5)
-            LabelDisplayText.Position = UDim2.new(0, 10, 1, -(BasePositionY + (HEIGHT_PER_INPUT_LABEL / 2)))
-            LabelDisplayText.Text = InputLabelData.DisplayName
-            LabelDisplayText.TextSize = 16
-            LabelDisplayText.TextTruncate = Enum.TextTruncate.AtEnd
-            LabelDisplayText.TextXAlignment = Enum.TextXAlignment.Left
-            LabelDisplayText.Parent = self.ContentsFrame
-
-            local LabelInput = NexusPluginComponents.new("TextBox")
-            LabelInput.Size = UDim2.new(1, -140, 0, HEIGHT_PER_INPUT_LABEL - 4)
-            LabelInput.AnchorPoint = Vector2.new(0, 0.5)
-            LabelInput.Position = UDim2.new(0, 130, 1, -(BasePositionY + (HEIGHT_PER_INPUT_LABEL / 2)))
-            LabelInput.Text = ""
-            LabelInput.PlaceholderText = Action.Manifest.Git[InputLabelData.Name]
-            LabelInput.TextSize = 16
-            LabelInput.TextXAlignment = Enum.TextXAlignment.Left
-            LabelInput.Parent = self.ContentsFrame
-            Labels[InputLabelData.Name] = LabelInput
-        end
 
         --Check if there are no lines to display.
         local ChangesToPush = true
@@ -122,18 +80,10 @@ function PushPromptFrame:Load(): ()
                     self.ConfirmButton.Disabled = true
                     self.CancelButton.Disabled = true
 
-                    --Determine the parameters.
-                    local Parameters = {}
-                    for InputName, InputBox in Labels do
-                        local Parameter = (InputBox.Text == "" and InputBox.PlaceholderText or InputBox.Text)
-                        if Parameter == "" then continue end
-                        Parameters[InputName] = Parameter
-                    end
-
                     --Export the files.
                     self.StatusText.Text = "Preparing scripts..."
                     self.StatusText.TextColor3 = Enum.StudioStyleGuideColor.MainText
-                    Action:PushScripts(Parameters.CheckoutBranch, Parameters.PushBranch, Parameters.CommitMessage, function(Status: string)
+                    Action:PushScripts(function(Status: string)
                         self.StatusText.Text = Status
                     end)
 

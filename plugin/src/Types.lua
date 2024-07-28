@@ -38,12 +38,6 @@ export type ScriptHashCollectionJson = {
 export type ProjectManifest = {
     Name: string?,
     PushPlaceId: number?,
-    SyncPlaceId: number?,
-    Git: {
-        CheckoutBranch: string,
-        PushBranch: string,
-        CommitMessage: string?,
-    },
     Paths: {[string]: string},
 }
 
